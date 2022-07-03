@@ -10,12 +10,14 @@ import (
 	"github.com/spf13/cobra"
 	"riedmann.dev/pocket-cli/cmd/list"
 	"riedmann.dev/pocket-cli/cmd/login"
+	"riedmann.dev/pocket-cli/pkg/util"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "pocket-cli",
 	Short: "A simple CLI for accessing and adding articles to pocket",
+	Version: util.Version,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -39,7 +41,7 @@ func init() {
 	var reset bool
 	loginCmd := cobra.Command{
 		Use: "login",
-		Short: "Link to your Pocket Account", 
+		Short: "Link CLI to your Pocket Account", 
 		Run: func(cmd *cobra.Command, args []string) {
 			login.Login(reset)
 		},
