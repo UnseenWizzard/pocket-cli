@@ -61,8 +61,11 @@ func getRequestToken(appId string) string {
 
 func GetAccessToken(appId string) string {
 	creds, err := ReadStoredCredentials()
-	if err == nil && creds.AccessToken != "" {
+	if err == nil && len(creds.AccessToken) > 0 {
 		return creds.AccessToken
+	}
+	if len(creds.AccessToken) == 0 && len(creds.RequestToken) == 0 {
+		log.Fatalln("Application is not authorized - please run 'pocket-cli login'!")
 	}
 	log.Println("Did not find stored access token - requesting new one.\n\tThis should only happen once after login.")
 	return getAccessToken(appId, creds.RequestToken)
