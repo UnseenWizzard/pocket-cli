@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    tags: [ "release/*" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: Get Release Version
+      run:  echo "version=$(echo '${{github.ref_name}}' | cut -d '/' -f 2)" >> $GITHUB_ENV
+
+    - name: Build Windows Amd64
+      run: GOOS=windows GOARCH=amd64 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-win-amd64.exe
+
+    - name: Build Windows x386
+      run: GOOS=windows GOARCH=386 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-win-386.exe
+
+    - name: Build Linux Amd64
+      run: GOOS=linux GOARCH=amd64 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-linux-amd64
+
+    - name: Build Linux x386
+      run: GOOS=linux GOARCH=386 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-linux-386
+
+    - name: Build Mac
+      run: GOOS=darwin GOARCH=amd64 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-mac
+
+    - name: Get release text
+      run: echo "$(.ci/git_log_release_notes.sh ${{env.version}} https://github.com/UnseenWizzard/pocket-cli)" > release.md
+
+    - uses: ncipollo/release-action@v1
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        artifacts: "pocket-cli*"
+        name: "${{env.version}}"
+        bodyFile: "release.md"
