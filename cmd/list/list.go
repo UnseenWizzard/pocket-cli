@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/dixonwille/wmenu"
+	"github.com/manifoldco/promptui"
 	"riedmann.dev/pocket-cli/pkg/login"
 	"riedmann.dev/pocket-cli/pkg/retrieve"
 	"riedmann.dev/pocket-cli/pkg/util"
@@ -12,56 +12,91 @@ import (
 
 const count = 10
 var offset = 0
-var articles []retrieve.Article
+var entries []listEntry
+
+type listEntry struct {
+	Title string
+	Excerpt string
+	ReadTime string
+	Url string
+}
 
 func ListArticles() {
-	menu := wmenu.NewMenu("Which article do you want to read?")
-	menu.ClearOnMenuRun()
-
 	fetched := fetchArticles(util.PocketAppId, login.GetAccessToken(util.PocketAppId), count, offset)
-	articles = append(articles, fetched...)
+	entries = append(entries, fetched...)
 
-	for _, a := range articles {
-		title := a.Title
-		if title == "" {
-			title = a.GivenTitle
-		}
-		info := fmt.Sprintf("%s (%v min)", title, a.ReadTime)
-		menu.Option(info, a.Url, false, openArticle)
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . | bold }}",
+		Active:   "\U0001F4D9 {{ .Title | bold }} {{if eq .ReadTime \"\"}} {{else}} ({{ .ReadTime | red }}) {{end}}",
+		Inactive: "  {{ .Title | cyan }} {{if eq .ReadTime \"\"}} {{else}} ({{ .ReadTime | faint }}) {{end}}",
+		Selected: "{{if eq .Title \"Load more ...\"}} {{ \"\U0001F504 Loading more articles...\" | red | bold}} {{else}} \U0001F4D6 {{ \"Opening...\" | bold}} {{ .Title | red | bold }} {{end}}",
+		Details: " {{.Excerpt | faint }}",
 	}
 
-	menu.Option("load more ...", &articles, true, fetchMore)
+	prompt := promptui.Select{
+		Label: "\U0001F4DA Which article do you want to read?",
+		Items: append(entries, listEntry{ Title: "Load more ..." }),
+		Templates: templates,
+		Size: 11,
+	}
 
-	err := menu.Run()
+	resIndex, _, err := prompt.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
+	
+	if resIndex != len(entries) {
+		util.OpenInBrowser(entries[resIndex].Url)
+	} else {
+		fetchMore()
+	}
 }
 
-func fetchMore(opt wmenu.Opt) error {
+func fetchMore() {
 	offset += 10
 	ListArticles()
-	return nil
 }
 
-func fetchArticles(consumerKey string, accessToken string, count int, offset int) []retrieve.Article {
+func fetchArticles(consumerKey string, accessToken string, count int, offset int) []listEntry {
 	articles := retrieve.RetrieveUnread(consumerKey, accessToken, count, offset)
 
-	var fetched = make([]retrieve.Article, count)
+	var fetched = make([]listEntry, count)
 	i := 0
 	for _, a := range articles.List {
-		fetched[i] = a
+
+		fetched[i] = listEntry{
+			Title: beautifyTitle(a),
+			Excerpt: beautifyExcerpt(a),
+			ReadTime: beautifyReadTime(a),
+			Url: a.Url,
+		}
 		i++
 	}
 	return fetched
-} 
-
-func openArticle(opt wmenu.Opt) error {
-	url, ok := opt.Value.(string)
-	if !ok {
-		return fmt.Errorf("expected an url value as string")
-	}
-	util.OpenInBrowser(url)
-	return nil
 }
 
+func beautifyTitle(a retrieve.Article) string {
+	title := a.Title
+	if title == "" {
+		title = a.GivenTitle
+	}
+	return title
+}
+
+func beautifyReadTime(a retrieve.Article) string {
+	time := "?"
+	if a.ReadTime > 0 {
+		time = fmt.Sprintf("%v min",a.ReadTime)
+	} 
+	return time
+}
+
+func beautifyExcerpt(a retrieve.Article) string {
+	if len(a.Excerpt) == 0 {
+		return "[No excerpt available]"
+	}
+	if len(a.Excerpt) > 120 {
+		return a.Excerpt[:117] + "..."
+	}
+	return a.Excerpt
+}
