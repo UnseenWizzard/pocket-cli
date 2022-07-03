@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"riedmann.dev/pocket-cli/cmd/list"
+	"riedmann.dev/pocket-cli/cmd/login"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -34,6 +35,17 @@ func init() {
 			list.ListArticles()
 		},
 	})
+
+	var reset bool
+	loginCmd := cobra.Command{
+		Use: "login",
+		Short: "Link to your Pocket Account", 
+		Run: func(cmd *cobra.Command, args []string) {
+			login.Login(reset)
+		},
+	}
+	loginCmd.Flags().BoolVarP(&reset, "reset", "r", false, "Reset existing login/app authorization")
+	rootCmd.AddCommand( &loginCmd)
 }
 
 

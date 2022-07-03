@@ -18,7 +18,7 @@ func ListArticles() {
 	menu := wmenu.NewMenu("Which article do you want to read?")
 	menu.ClearOnMenuRun()
 
-	fetched := fetchArticles(util.PocketAppId, login.GetAuthCode(), count, offset)
+	fetched := fetchArticles(util.PocketAppId, login.GetAccessToken(util.PocketAppId), count, offset)
 	articles = append(articles, fetched...)
 
 	for _, a := range articles {
