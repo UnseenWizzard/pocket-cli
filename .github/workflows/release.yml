@@ -35,11 +35,11 @@ jobs:
       run: GOOS=darwin GOARCH=amd64 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-mac
 
     - name: Get release text
-      run: echo "$(.ci/git_log_release_notes.sh ${{env.version}} https://github.com/UnseenWizzard/pocket-cli)" > release.md
+      run: echo "$(.ci/git-changelog.sh ${{env.version}} https://github.com/UnseenWizzard/pocket-cli)"
 
     - uses: ncipollo/release-action@v1
       with:
         token: "${{ secrets.GITHUB_TOKEN }}"
         artifacts: "pocket-cli*"
         name: "${{env.version}}"
-        bodyFile: "release.md"
+        bodyFile: "CHANGELOG.md"

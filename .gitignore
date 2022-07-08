@@ -1,2 +1,6 @@
 .credentials.json
 pocket-cli*
+CHANGELOG.md
+unit-test.xml
+.vscode
+unit-test.xml
