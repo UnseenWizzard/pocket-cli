@@ -13,7 +13,7 @@ const configFolder = ".pocket-cli"
 
 type credentials struct {
 	RequestToken string `json:"request_token"`
-	AccessToken string `json:"access_token"`
+	AccessToken  string `json:"access_token"`
 }
 
 func ReadStoredCredentials() (credentials, error) {
@@ -23,7 +23,7 @@ func ReadStoredCredentials() (credentials, error) {
 		return credentials{}, err
 	}
 
-	var c credentials 
+	var c credentials
 
 	err = json.Unmarshal(f, &c)
 	if err != nil {

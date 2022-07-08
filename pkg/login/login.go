@@ -1,14 +1,14 @@
 package login
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
-	"encoding/json"
-	"bytes"
 
 	"riedmann.dev/pocket-cli/pkg/util"
 )
@@ -22,20 +22,20 @@ func AuthorizeApp(appId string) {
 		return
 	}
 
-	reqToken := getRequestToken(appId)	
-	authUrl := fmt.Sprintf("https://getpocket.com/auth/authorize?request_token=%s&redirect_uri=%s", reqToken, redirectUri) 
+	reqToken := getRequestToken(appId)
+	authUrl := fmt.Sprintf("https://getpocket.com/auth/authorize?request_token=%s&redirect_uri=%s", reqToken, redirectUri)
 	util.OpenInBrowser(authUrl)
 }
 
 func getRequestToken(appId string) string {
-	payload := url.Values {
+	payload := url.Values{
 		"consumer_key": {appId},
 		"redirect_uri": {redirectUri},
 	}
 
 	res, err := http.Post("https://getpocket.com/v3/oauth/request", "application/x-www-form-urlencoded", strings.NewReader(payload.Encode()))
-	if err != nil || !util.IsHttpSuccess(res.StatusCode)  {
-		log.Printf("Failed to make http request (%v)\n",res.Status)
+	if err != nil || !util.IsHttpSuccess(res.StatusCode) {
+		log.Printf("Failed to make http request (%v)\n", res.Status)
 		panic(err)
 	}
 
@@ -57,7 +57,6 @@ func getRequestToken(appId string) string {
 
 	return token
 }
-
 
 func GetAccessToken(appId string) string {
 	creds, err := ReadStoredCredentials()
@@ -81,23 +80,23 @@ func getAccessToken(appId string, reqCode string) string {
 		ConsumerKey: appId,
 		RequestCode: reqCode,
 	}
-	
+
 	b, err := json.Marshal(payload)
 	if err != nil {
 		println("Failed to marshal http request body")
 		panic(err)
 	}
-	
+
 	res, err := http.Post("https://getpocket.com/v3/oauth/authorize", "application/json", bytes.NewBuffer(b))
-	
+
 	log.Println(string(b))
 	if err == nil && res.StatusCode == 403 {
 		log.Println("Failed to request AccessCode - if this persist please re-authorize using login --reset")
 		panic(err)
 	}
-	
+
 	if err != nil || !util.IsHttpSuccess(res.StatusCode) {
-		log.Printf("Failed to make http request (%v)\n",res.Status)
+		log.Printf("Failed to make http request (%v)\n", res.Status)
 		panic(err)
 	}
 
@@ -116,7 +115,7 @@ func getAccessToken(appId string, reqCode string) string {
 	fmt.Printf("Acquired new access token for user %s\n", user)
 
 	StoreCredentials(credentials{
-		AccessToken: token,
+		AccessToken:  token,
 		RequestToken: reqCode,
 	})
 
@@ -132,13 +131,13 @@ func parseAccessTokenResponse(resp string) (accessToken string, forUser string, 
 	if len(tokenSplit) != 2 && tokenSplit[0] != "access_token" {
 		return "", "", fmt.Errorf("unexpected API response: %v", resp)
 	}
-	accessToken = tokenSplit[1] 
+	accessToken = tokenSplit[1]
 
 	userSplit := strings.Split(split[1], "=")
 	if len(userSplit) != 2 && userSplit[0] != "username" {
 		return "", "", fmt.Errorf("unexpected API response: %v", resp)
 	}
-	forUser = userSplit[1] 
+	forUser = userSplit[1]
 
 	return accessToken, forUser, err
 }

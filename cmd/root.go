@@ -15,8 +15,8 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "pocket-cli",
-	Short: "A simple CLI for accessing and adding articles to pocket",
+	Use:     "pocket-cli",
+	Short:   "A simple CLI for accessing and adding articles to pocket",
 	Version: util.Version,
 }
 
@@ -30,9 +30,9 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.AddCommand( &cobra.Command{
-		Use: "list",
-		Short: "Lists your pocket articles", 
+	rootCmd.AddCommand(&cobra.Command{
+		Use:   "list",
+		Short: "Lists your pocket articles",
 		Run: func(cmd *cobra.Command, args []string) {
 			list.ListArticles()
 		},
@@ -40,14 +40,12 @@ func init() {
 
 	var reset bool
 	loginCmd := cobra.Command{
-		Use: "login",
-		Short: "Link CLI to your Pocket Account", 
+		Use:   "login",
+		Short: "Link CLI to your Pocket Account",
 		Run: func(cmd *cobra.Command, args []string) {
 			login.Login(reset)
 		},
 	}
 	loginCmd.Flags().BoolVarP(&reset, "reset", "r", false, "Reset existing login/app authorization")
-	rootCmd.AddCommand( &loginCmd)
+	rootCmd.AddCommand(&loginCmd)
 }
-
-

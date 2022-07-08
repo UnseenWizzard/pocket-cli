@@ -11,14 +11,15 @@ import (
 )
 
 const count = 10
+
 var offset = 0
 var entries []listEntry
 
 type listEntry struct {
-	Title string
-	Excerpt string
+	Title    string
+	Excerpt  string
 	ReadTime string
-	Url string
+	Url      string
 }
 
 func ListArticles() {
@@ -30,21 +31,21 @@ func ListArticles() {
 		Active:   "\U0001F4D9 {{ .Title | bold }} {{if eq .ReadTime \"\"}} {{else}} ({{ .ReadTime | red }}) {{end}}",
 		Inactive: "  {{ .Title | cyan }} {{if eq .ReadTime \"\"}} {{else}} ({{ .ReadTime | faint }}) {{end}}",
 		Selected: "{{if eq .Title \"Load more ...\"}} {{ \"\U0001F504 Loading more articles...\" | red | bold}} {{else}} \U0001F4D6 {{ \"Opening...\" | bold}} {{ .Title | red | bold }} {{end}}",
-		Details: " {{.Excerpt | faint }}",
+		Details:  " {{.Excerpt | faint }}",
 	}
 
 	prompt := promptui.Select{
-		Label: "\U0001F4DA Which article do you want to read?",
-		Items: append(entries, listEntry{ Title: "Load more ..." }),
+		Label:     "\U0001F4DA Which article do you want to read?",
+		Items:     append(entries, listEntry{Title: "Load more ..."}),
 		Templates: templates,
-		Size: 11,
+		Size:      11,
 	}
 
 	resIndex, _, err := prompt.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	if resIndex != len(entries) {
 		util.OpenInBrowser(entries[resIndex].Url)
 	} else {
@@ -65,10 +66,10 @@ func fetchArticles(consumerKey string, accessToken string, count int, offset int
 	for _, a := range articles.List {
 
 		fetched[i] = listEntry{
-			Title: beautifyTitle(a),
-			Excerpt: beautifyExcerpt(a),
+			Title:    beautifyTitle(a),
+			Excerpt:  beautifyExcerpt(a),
 			ReadTime: beautifyReadTime(a),
-			Url: a.Url,
+			Url:      a.Url,
 		}
 		i++
 	}
@@ -86,8 +87,8 @@ func beautifyTitle(a retrieve.Article) string {
 func beautifyReadTime(a retrieve.Article) string {
 	time := "?"
 	if a.ReadTime > 0 {
-		time = fmt.Sprintf("%v min",a.ReadTime)
-	} 
+		time = fmt.Sprintf("%v min", a.ReadTime)
+	}
 	return time
 }
 
