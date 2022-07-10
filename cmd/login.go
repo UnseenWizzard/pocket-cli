@@ -1,4 +1,4 @@
-package login
+package cmd
 
 import (
 	"github.com/UnseenWizzard/pocket-cli/pkg/login"

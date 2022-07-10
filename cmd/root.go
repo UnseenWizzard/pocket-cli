@@ -3,8 +3,6 @@ package cmd
 import (
 	"os"
 
-	"github.com/UnseenWizzard/pocket-cli/cmd/list"
-	"github.com/UnseenWizzard/pocket-cli/cmd/login"
 	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -30,7 +28,7 @@ func init() {
 		Use:   "list",
 		Short: "Lists your pocket articles",
 		Run: func(cmd *cobra.Command, args []string) {
-			list.ListArticles()
+			ListArticles()
 		},
 	})
 
@@ -39,7 +37,7 @@ func init() {
 		Use:   "login",
 		Short: "Link CLI to your Pocket Account",
 		Run: func(cmd *cobra.Command, args []string) {
-			login.Login(reset)
+			Login(reset)
 		},
 	}
 	loginCmd.Flags().BoolVarP(&reset, "reset", "r", false, "Reset existing login/app authorization")
