@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/UnseenWizzard/pocket-cli/pkg/login"
+	"github.com/UnseenWizzard/pocket-cli/pkg/retrieve"
+	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 	"github.com/manifoldco/promptui"
-	"riedmann.dev/pocket-cli/pkg/login"
-	"riedmann.dev/pocket-cli/pkg/retrieve"
-	"riedmann.dev/pocket-cli/pkg/util"
 )
 
 const count = 10

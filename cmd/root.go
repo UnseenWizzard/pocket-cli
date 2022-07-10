@@ -1,16 +1,12 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
 	"os"
 
+	"github.com/UnseenWizzard/pocket-cli/cmd/list"
+	"github.com/UnseenWizzard/pocket-cli/cmd/login"
+	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 	"github.com/spf13/cobra"
-	"riedmann.dev/pocket-cli/cmd/list"
-	"riedmann.dev/pocket-cli/cmd/login"
-	"riedmann.dev/pocket-cli/pkg/util"
 )
 
 // rootCmd represents the base command when called without any subcommands

@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"riedmann.dev/pocket-cli/pkg/util"
+	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 )
 
 const redirectUri = "https://riedmann.dev"

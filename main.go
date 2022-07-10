@@ -4,7 +4,7 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 */
 package main
 
-import "riedmann.dev/pocket-cli/cmd"
+import "github.com/UnseenWizzard/pocket-cli/cmd"
 
 func main() {
 	cmd.Execute()

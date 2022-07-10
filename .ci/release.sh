@@ -5,7 +5,7 @@ if [ "$#" -ne 3 ]; then
 fi
 
 CGO_ENABLED=0 go build -ldflags=\
-"-X 'riedmann.dev/pocket-cli/pkg/util.PocketAppId=$1'\
- -X 'riedmann.dev/pocket-cli/pkg/util.Version=$2'\
+"-X 'github.com/UnseenWizzard/pocket-cli/pkg/util.PocketAppId=$1'\
+ -X 'github.com/UnseenWizzard/pocket-cli/pkg/util.Version=$2'\
  -w -s -extldflags '-static'"\
  -o $3

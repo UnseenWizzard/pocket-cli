@@ -1,8 +1,8 @@
 package login
 
 import (
-	"riedmann.dev/pocket-cli/pkg/login"
-	"riedmann.dev/pocket-cli/pkg/util"
+	"github.com/UnseenWizzard/pocket-cli/pkg/login"
+	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 )
 
 func Login(reset bool) {

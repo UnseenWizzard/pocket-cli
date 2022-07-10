@@ -1,4 +1,4 @@
-module riedmann.dev/pocket-cli
+module github.com/UnseenWizzard/pocket-cli
 
 go 1.18
 
