@@ -1,4 +1,4 @@
 package util
 
-const PocketAppId = "FILLED BY CI"
-const Version = "FILLED BY CI"
+var PocketAppId = "FILLED BY CI"
+var Version = "FILLED BY CI"
