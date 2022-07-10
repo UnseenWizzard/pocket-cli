@@ -1,4 +1,4 @@
-ö.PHONY: build check fmt analysis test test-ci changelog
+PHONY: build check fmt analysis test test-ci
 
 default: check
 
