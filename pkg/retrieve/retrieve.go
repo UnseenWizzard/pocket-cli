@@ -23,6 +23,7 @@ type ResponsePayload struct {
 }
 
 type Article struct {
+	Id         string `json:"item_id"`
 	Title      string `json:"resolved_title"`
 	GivenTitle string `json:"given_title"`
 	Url        string `json:"given_url"`

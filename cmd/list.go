@@ -16,6 +16,7 @@ var offset = 0
 var entries []listEntry
 
 type listEntry struct {
+	Id       string
 	Title    string
 	Excerpt  string
 	ReadTime string
@@ -47,7 +48,9 @@ func ListArticles() {
 	}
 
 	if resIndex != len(entries) {
-		util.OpenInBrowser(entries[resIndex].Url)
+		e := entries[resIndex]
+		util.OpenInBrowser(e.Url)
+		ModifyItemPrompt(e.Id)
 	} else {
 		fetchMore()
 	}
@@ -66,6 +69,7 @@ func fetchArticles(consumerKey string, accessToken string, count int, offset int
 	for _, a := range articles.List {
 
 		fetched[i] = listEntry{
+			Id:       a.Id,
 			Title:    beautifyTitle(a),
 			Excerpt:  beautifyExcerpt(a),
 			ReadTime: beautifyReadTime(a),
