@@ -51,5 +51,8 @@ func ModifyItemPrompt(id string) {
 	if selection.Title == "Exit" {
 		os.Exit(0)
 	}
-	selection.act(util.PocketAppId, login.GetAccessToken(util.PocketAppId), id)
+	err = selection.act(util.PocketAppId, login.GetAccessToken(util.PocketAppId), id)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

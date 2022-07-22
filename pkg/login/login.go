@@ -26,11 +26,14 @@ func AuthorizeApp(appId string) {
 
 	reqToken, err := getRequestToken(requestTokenApi, appId, storeCredentials)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	authUrl := fmt.Sprintf("https://getpocket.com/auth/authorize?request_token=%s&redirect_uri=%s", reqToken, redirectUri)
 	log.Println("Please authorize app in browser - then run commands like `pocket-cli list`")
-	util.OpenInBrowser(authUrl)
+	err = util.OpenInBrowser(authUrl)
+	if err != nil {
+		log.Fatal("Failed to open browser: %w", err)
+	}
 }
 
 func getRequestToken(apiUrl string, appId string, storeCredentialsFn func(credentials)) (string, error) {
@@ -75,7 +78,7 @@ func GetAccessToken(appId string) string {
 	log.Println("Did not find stored access token - requesting new one. (This should only happen once after login)")
 	token, err := getAccessToken(authorizeApi, appId, creds.RequestToken, storeCredentials)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return token
 }

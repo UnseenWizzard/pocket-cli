@@ -49,7 +49,10 @@ func ListArticles() {
 
 	if resIndex != len(entries) {
 		e := entries[resIndex]
-		util.OpenInBrowser(e.Url)
+		err := util.OpenInBrowser(e.Url)
+		if err != nil {
+			log.Fatal("Failed to open browser: %w", err)
+		}
 		ModifyItemPrompt(e.Id)
 	} else {
 		fetchMore()
