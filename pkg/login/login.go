@@ -14,6 +14,8 @@ import (
 )
 
 const redirectUri = "https://riedmann.dev"
+const requestTokenApi = "https://getpocket.com/v3/oauth/request"
+const authorizeApi = "https://getpocket.com/v3/oauth/authorize"
 
 func AuthorizeApp(appId string) {
 	creds, err := readStoredCredentials()
@@ -22,18 +24,19 @@ func AuthorizeApp(appId string) {
 		return
 	}
 
-	reqToken := getRequestToken(appId)
+	reqToken := getRequestToken(requestTokenApi, appId, storeCredentials)
 	authUrl := fmt.Sprintf("https://getpocket.com/auth/authorize?request_token=%s&redirect_uri=%s", reqToken, redirectUri)
+	log.Println("Please authorize app in browser - then run commands like `pocket-cli list`")
 	util.OpenInBrowser(authUrl)
 }
 
-func getRequestToken(appId string) string {
+func getRequestToken(apiUrl string, appId string, storeCredentialsFn func(credentials)) string {
 	payload := url.Values{
 		"consumer_key": {appId},
 		"redirect_uri": {redirectUri},
 	}
 
-	res, err := http.Post("https://getpocket.com/v3/oauth/request", "application/x-www-form-urlencoded", strings.NewReader(payload.Encode()))
+	res, err := http.Post(apiUrl, "application/x-www-form-urlencoded", strings.NewReader(payload.Encode()))
 	if err != nil || !util.IsHttpSuccess(res.StatusCode) {
 		log.Printf("Failed to make http request (%v)\n", res.Status)
 		panic(err)
@@ -53,7 +56,7 @@ func getRequestToken(appId string) string {
 	}
 	token := split[1]
 
-	storeCredentials(credentials{RequestToken: token})
+	storeCredentialsFn(credentials{RequestToken: token})
 
 	return token
 }
@@ -66,8 +69,8 @@ func GetAccessToken(appId string) string {
 	if len(creds.AccessToken) == 0 && len(creds.RequestToken) == 0 {
 		log.Fatalln("Application is not authorized - please run 'pocket-cli login'!")
 	}
-	log.Println("Did not find stored access token - requesting new one.\n\tThis should only happen once after login.")
-	return getAccessToken(appId, creds.RequestToken)
+	log.Println("Did not find stored access token - requesting new one. (This should only happen once after login)")
+	return getAccessToken(authorizeApi, appId, creds.RequestToken, storeCredentials)
 }
 
 type accessTokenRequest struct {
@@ -75,7 +78,7 @@ type accessTokenRequest struct {
 	RequestCode string `json:"code"`
 }
 
-func getAccessToken(appId string, reqCode string) string {
+func getAccessToken(apiUrl string, appId string, reqCode string, storeCredentialsFn func(credentials)) string {
 	payload := accessTokenRequest{
 		ConsumerKey: appId,
 		RequestCode: reqCode,
@@ -87,9 +90,8 @@ func getAccessToken(appId string, reqCode string) string {
 		panic(err)
 	}
 
-	res, err := http.Post("https://getpocket.com/v3/oauth/authorize", "application/json", bytes.NewBuffer(b))
+	res, err := http.Post(apiUrl, "application/json", bytes.NewBuffer(b))
 
-	log.Println(string(b))
 	if err == nil && res.StatusCode == 403 {
 		log.Println("Failed to request AccessCode - if this persist please re-authorize using login --reset")
 		panic(err)
@@ -114,7 +116,7 @@ func getAccessToken(appId string, reqCode string) string {
 
 	fmt.Printf("Acquired new access token for user %s\n", user)
 
-	storeCredentials(credentials{
+	storeCredentialsFn(credentials{
 		AccessToken:  token,
 		RequestToken: reqCode,
 	})
@@ -139,7 +141,7 @@ func parseAccessTokenResponse(resp string) (accessToken string, forUser string, 
 			accessToken = val
 		}
 		if key == "username" {
-			forUser = val
+			forUser, _ = url.QueryUnescape(val)
 		}
 	}
 	if len(accessToken) == 0 {
