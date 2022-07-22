@@ -24,13 +24,16 @@ func AuthorizeApp(appId string) {
 		return
 	}
 
-	reqToken := getRequestToken(requestTokenApi, appId, storeCredentials)
+	reqToken, err := getRequestToken(requestTokenApi, appId, storeCredentials)
+	if err != nil {
+		panic(err)
+	}
 	authUrl := fmt.Sprintf("https://getpocket.com/auth/authorize?request_token=%s&redirect_uri=%s", reqToken, redirectUri)
 	log.Println("Please authorize app in browser - then run commands like `pocket-cli list`")
 	util.OpenInBrowser(authUrl)
 }
 
-func getRequestToken(apiUrl string, appId string, storeCredentialsFn func(credentials)) string {
+func getRequestToken(apiUrl string, appId string, storeCredentialsFn func(credentials)) (string, error) {
 	payload := url.Values{
 		"consumer_key": {appId},
 		"redirect_uri": {redirectUri},
@@ -38,27 +41,27 @@ func getRequestToken(apiUrl string, appId string, storeCredentialsFn func(creden
 
 	res, err := http.Post(apiUrl, "application/x-www-form-urlencoded", strings.NewReader(payload.Encode()))
 	if err != nil || !util.IsHttpSuccess(res.StatusCode) {
-		log.Printf("Failed to make http request (%v)\n", res.Status)
-		panic(err)
+		if err == nil {
+			err = fmt.Errorf("%s", res.Status)
+		}
+		return "", fmt.Errorf("failed to make http request: %w", err)
 	}
 
 	body, err := io.ReadAll(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		println("Failed to read http response")
-		panic(err)
+		return "", fmt.Errorf("failed to read http response: %w", err)
 	}
 
 	split := strings.Split(string(body), "=")
-	if len(split) != 2 && split[0] != "code" {
-		err := fmt.Errorf("unexpected API response: %v", body)
-		panic(err)
+	if len(split) != 2 || split[0] != "code" {
+		return "", fmt.Errorf("unexpected API response: %v", body)
 	}
 	token := split[1]
 
 	storeCredentialsFn(credentials{RequestToken: token})
 
-	return token
+	return token, nil
 }
 
 func GetAccessToken(appId string) string {
