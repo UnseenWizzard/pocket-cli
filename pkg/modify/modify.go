@@ -27,15 +27,17 @@ type responsePayload struct {
 	Status        int    `json:"status"`
 }
 
+const sendApiUrl = "https://getpocket.com/v3/send"
+
 func ArchiveArticle(consumerKey string, accessToken string, articleId string) error {
-	return makeModifyApiCall(consumerKey, accessToken, "archive", articleId)
+	return makeModifyApiCall(sendApiUrl, consumerKey, accessToken, "archive", articleId)
 }
 
 func FavoriteArticle(consumerKey string, accessToken string, articleId string) error {
-	return makeModifyApiCall(consumerKey, accessToken, "favorite", articleId)
+	return makeModifyApiCall(sendApiUrl, consumerKey, accessToken, "favorite", articleId)
 }
 
-func makeModifyApiCall(consumerKey string, accessToken string, action string, articleId string) error {
+func makeModifyApiCall(url string, consumerKey string, accessToken string, action string, articleId string) error {
 
 	b, err := buildRequestPayload(consumerKey, accessToken, action, articleId)
 	if err != nil {
@@ -44,8 +46,11 @@ func makeModifyApiCall(consumerKey string, accessToken string, action string, ar
 
 	log.Printf("Marking article (%v) as %s-ed...", articleId, action)
 
-	res, err := http.Post("https://getpocket.com/v3/send", "application/json", bytes.NewBuffer(b))
+	res, err := http.Post(url, "application/json", bytes.NewBuffer(b))
 	if err != nil || (res.StatusCode < 200 || res.StatusCode >= 300) {
+		if err == nil {
+			err = fmt.Errorf("%s", res.Status)
+		}
 		return fmt.Errorf("failed to make http request: %w", err)
 	}
 
