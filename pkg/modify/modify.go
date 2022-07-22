@@ -89,5 +89,11 @@ func checkResponseForErrors(responseBody []byte) error {
 		return fmt.Errorf("API failed to excute action")
 	}
 
+	for _, success := range result.ActionResults {
+		if !success {
+			return fmt.Errorf("API failed to excute action")
+		}
+	}
+
 	return nil
 }
