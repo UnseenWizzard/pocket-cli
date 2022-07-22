@@ -30,10 +30,15 @@ jobs:
       run: make test-ci
     - name: Upload Test Results
       uses: actions/upload-artifact@v2
-      if: ${{ always() }}
+      if: always()
       with:
         name: Test Results
         path: unit-test.xml
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: always()
+      with:
+        files: "unit-test.xml"
 
   analysis:
     runs-on: ubuntu-latest
