@@ -73,7 +73,11 @@ func GetAccessToken(appId string) string {
 		log.Fatalln("Application is not authorized - please run 'pocket-cli login'!")
 	}
 	log.Println("Did not find stored access token - requesting new one. (This should only happen once after login)")
-	return getAccessToken(authorizeApi, appId, creds.RequestToken, storeCredentials)
+	token, err := getAccessToken(authorizeApi, appId, creds.RequestToken, storeCredentials)
+	if err != nil {
+		panic(err)
+	}
+	return token
 }
 
 type accessTokenRequest struct {
@@ -81,7 +85,7 @@ type accessTokenRequest struct {
 	RequestCode string `json:"code"`
 }
 
-func getAccessToken(apiUrl string, appId string, reqCode string, storeCredentialsFn func(credentials)) string {
+func getAccessToken(apiUrl string, appId string, reqCode string, storeCredentialsFn func(credentials)) (string, error) {
 	payload := accessTokenRequest{
 		ConsumerKey: appId,
 		RequestCode: reqCode,
@@ -89,32 +93,31 @@ func getAccessToken(apiUrl string, appId string, reqCode string, storeCredential
 
 	b, err := json.Marshal(payload)
 	if err != nil {
-		println("Failed to marshal http request body")
-		panic(err)
+		return "", fmt.Errorf("failed to marshal http request body: %w", err)
 	}
 
 	res, err := http.Post(apiUrl, "application/json", bytes.NewBuffer(b))
 
 	if err == nil && res.StatusCode == 403 {
-		log.Println("Failed to request AccessCode - if this persist please re-authorize using login --reset")
-		panic(err)
+		return "", fmt.Errorf("failed to request AccessCode - if this persist please re-authorize using login --reset")
 	}
 
 	if err != nil || !util.IsHttpSuccess(res.StatusCode) {
-		log.Printf("Failed to make http request (%v)\n", res.Status)
-		panic(err)
+		if err == nil {
+			err = fmt.Errorf("%s", res.Status)
+		}
+		return "", fmt.Errorf("failed to make http request: %w", err)
 	}
 
 	body, err := io.ReadAll(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		println("Failed to read http response")
-		panic(err)
+		return "", fmt.Errorf("failed to read http response: %w", err)
 	}
 
 	token, user, err := parseAccessTokenResponse(string(body))
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	fmt.Printf("Acquired new access token for user %s\n", user)
@@ -124,7 +127,7 @@ func getAccessToken(apiUrl string, appId string, reqCode string, storeCredential
 		RequestToken: reqCode,
 	})
 
-	return token
+	return token, nil
 }
 
 func parseAccessTokenResponse(resp string) (accessToken string, forUser string, err error) {

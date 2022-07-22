@@ -202,3 +202,112 @@ func Test_getRequestToken(t *testing.T) {
 		})
 	}
 }
+
+func Test_getAccessToken(t *testing.T) {
+
+	tests := []struct {
+		name           string
+		serverResponse func(w http.ResponseWriter, r *http.Request)
+		want           string
+		wantErr        bool
+	}{
+		{
+			"GetsAccessToken",
+			func(w http.ResponseWriter, r *http.Request) {
+				res := "access_token=an-access-token&username=malcom.reynolds"
+				w.WriteHeader(200)
+				_, _ = io.WriteString(w, res)
+			},
+			"an-access-token",
+			false,
+		},
+		{
+			"GetsAccessToken_ValidReplyWithAdditionalData",
+			func(w http.ResponseWriter, r *http.Request) {
+				res := "username=malcom.reynolds&some-extra=key&access_token=an-access-token"
+				w.WriteHeader(200)
+				_, _ = io.WriteString(w, res)
+			},
+			"an-access-token",
+			false,
+		},
+		{
+			"HTTP_401_ReturnsError",
+			func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(401)
+			},
+			"",
+			true,
+		},
+		{
+			"HTTP_403_ReturnsError",
+			func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(403)
+			},
+			"",
+			true,
+		},
+		{
+			"HTTP_502_ReturnsError",
+			func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(502)
+			},
+			"",
+			true,
+		},
+		{
+			"EmptyResponse_ReturnsError",
+			func(w http.ResponseWriter, r *http.Request) {
+				res := ""
+				w.WriteHeader(200)
+				_, _ = io.WriteString(w, res)
+			},
+			"",
+			true,
+		},
+		{
+			"InvalidResponse_ReturnsError",
+			func(w http.ResponseWriter, r *http.Request) {
+				res := "some-key=some-val"
+				w.WriteHeader(200)
+				_, _ = io.WriteString(w, res)
+			},
+			"",
+			true,
+		},
+		{
+			"PartialResponse_ReturnsError",
+			func(w http.ResponseWriter, r *http.Request) {
+				res := "username=malcom.reynolds"
+				w.WriteHeader(200)
+				_, _ = io.WriteString(w, res)
+			},
+			"",
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ts := httptest.NewServer(http.HandlerFunc(tt.serverResponse))
+
+			var storedCreds credentials
+			storeCredsFn := func(c credentials) {
+				storedCreds = c
+			}
+
+			got, gotErr := getAccessToken(ts.URL, "app-id", "a-request-code", storeCredsFn)
+			if (gotErr != nil) != tt.wantErr {
+				t.Errorf("getAccessToken() Error = %v, wanted err? %v", gotErr, tt.wantErr)
+			}
+			if got != tt.want {
+				t.Errorf("getAccessToken() = %v, want %v", got, tt.want)
+			}
+
+			if storedCreds.AccessToken != tt.want {
+				t.Errorf("failed to store access token. stored value = %v", storedCreds)
+			}
+
+			ts.Close()
+		})
+	}
+}
