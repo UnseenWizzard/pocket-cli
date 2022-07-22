@@ -1,4 +1,4 @@
-PHONY: build check fmt analysis test test-ci
+.PHONY: build check fmt analysis test test-ci coverage-report
 
 default: check
 
@@ -13,6 +13,10 @@ fmt:
 analysis:
 	@.ci/check-format.sh
 	@go vet ./...
+
+coverage-report:
+	@go test -coverprofile coverage.out ./...
+	@go tool cover -html coverage.out -o coverage.html
 
 test-opts=
 test:

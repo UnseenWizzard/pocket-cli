@@ -5,3 +5,4 @@ unit-test.xml
 .vscode
 unit-test.xml
 local-install.sh
+coverage*
