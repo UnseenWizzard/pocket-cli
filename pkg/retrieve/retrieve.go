@@ -3,6 +3,7 @@ package retrieve
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -31,7 +32,11 @@ type Article struct {
 	ReadTime   int    `json:"time_to_read"`
 }
 
-func RetrieveUnread(consumerKey string, accessToken string, count int, offset int) ResponsePayload {
+func RetrieveUnread(consumerKey string, accessToken string, count int, offset int) (ResponsePayload, error) {
+	return retrieveUnread("https://getpocket.com/v3/get", consumerKey, accessToken, count, offset)
+}
+
+func retrieveUnread(url string, consumerKey string, accessToken string, count int, offset int) (ResponsePayload, error) {
 	payload := requestPayload{
 		ConsumerKey: consumerKey,
 		AccessToken: accessToken,
@@ -41,32 +46,31 @@ func RetrieveUnread(consumerKey string, accessToken string, count int, offset in
 	}
 	b, err := json.Marshal(payload)
 	if err != nil {
-		println("Failed to marshal http request body")
-		panic(err)
+		return ResponsePayload{}, fmt.Errorf("failed to marshal http request body: %w", err)
 	}
 
 	log.Printf("Fetching %v articles from API - offset:%v, sort:%v", payload.Count, payload.Offset, payload.Sort)
 
-	res, err := http.Post("https://getpocket.com/v3/get", "application/json", bytes.NewBuffer(b))
+	res, err := http.Post(url, "application/json", bytes.NewBuffer(b))
 	if err != nil || (res.StatusCode < 200 || res.StatusCode >= 300) {
-		println("Failed to make http request")
-		panic(err)
+		if err == nil {
+			err = fmt.Errorf("%s", res.Status)
+		}
+		return ResponsePayload{}, fmt.Errorf("failed to make http request: %w", err)
 	}
 
 	body, err := io.ReadAll(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		println("Failed to read http response")
-		panic(err)
+		return ResponsePayload{}, fmt.Errorf("failed to read http response: %w", err)
 	}
 
 	var list ResponsePayload
 
 	err = json.Unmarshal(body, &list)
 	if err != nil {
-		println("Failed to unmarshal http response")
-		panic(err)
+		return ResponsePayload{}, fmt.Errorf("failed to unmarshal http response: %w", err)
 	}
 
-	return list
+	return list, nil
 }

@@ -62,7 +62,10 @@ func fetchMore() {
 }
 
 func fetchArticles(consumerKey string, accessToken string, count int, offset int) []listEntry {
-	articles := retrieve.RetrieveUnread(consumerKey, accessToken, count, offset)
+	articles, err := retrieve.RetrieveUnread(consumerKey, accessToken, count, offset)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var fetched = make([]listEntry, count)
 	i := 0
