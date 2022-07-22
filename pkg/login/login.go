@@ -16,7 +16,7 @@ import (
 const redirectUri = "https://riedmann.dev"
 
 func AuthorizeApp(appId string) {
-	creds, err := ReadStoredCredentials()
+	creds, err := readStoredCredentials()
 	if err == nil && creds.RequestToken != "" {
 		log.Println("Already authorized")
 		return
@@ -53,13 +53,13 @@ func getRequestToken(appId string) string {
 	}
 	token := split[1]
 
-	StoreCredentials(credentials{RequestToken: token})
+	storeCredentials(credentials{RequestToken: token})
 
 	return token
 }
 
 func GetAccessToken(appId string) string {
-	creds, err := ReadStoredCredentials()
+	creds, err := readStoredCredentials()
 	if err == nil && len(creds.AccessToken) > 0 {
 		return creds.AccessToken
 	}
@@ -114,7 +114,7 @@ func getAccessToken(appId string, reqCode string) string {
 
 	fmt.Printf("Acquired new access token for user %s\n", user)
 
-	StoreCredentials(credentials{
+	storeCredentials(credentials{
 		AccessToken:  token,
 		RequestToken: reqCode,
 	})

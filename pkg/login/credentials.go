@@ -16,7 +16,7 @@ type credentials struct {
 	AccessToken  string `json:"access_token"`
 }
 
-func ReadStoredCredentials() (credentials, error) {
+func readStoredCredentials() (credentials, error) {
 	f, err := os.ReadFile(getFullCredentialFilePath())
 	if err != nil {
 		log.Println("No stored credentials found")
@@ -27,18 +27,16 @@ func ReadStoredCredentials() (credentials, error) {
 
 	err = json.Unmarshal(f, &c)
 	if err != nil {
-		log.Println("Failed to parse credentials file")
-		panic(err)
+		log.Fatal("Failed to parse credentials file")
 	}
 	log.Println("Read stored credentials from disk")
 	return c, nil
 }
 
-func StoreCredentials(c credentials) {
+func storeCredentials(c credentials) {
 	bytes, err := json.Marshal(c)
 	if err != nil {
-		log.Println("Failed to parse credentials to store")
-		panic(err)
+		log.Fatal("Failed to parse credentials to store")
 	}
 
 	err = os.Mkdir(getAppConfigFolderPath(), 0750)
@@ -48,16 +46,14 @@ func StoreCredentials(c credentials) {
 
 	err = os.WriteFile(getFullCredentialFilePath(), bytes, 0644)
 	if err != nil {
-		log.Println("Failed to store credentials file")
-		panic(err)
+		log.Fatal("Failed to store credentials file")
 	}
 }
 
 func RemoveStoredCredentials() {
 	err := os.Remove(getFullCredentialFilePath())
 	if err != nil {
-		log.Println("Failed to delete credentials file")
-		return
+		log.Fatal("Failed to delete credentials file: %w", err)
 	}
 	log.Println("Removed stored credentials")
 }
