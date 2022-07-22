@@ -15,8 +15,10 @@ analysis:
 	@go vet ./...
 
 coverage-report:
-	@go test -coverprofile coverage.out ./...
-	@go tool cover -html coverage.out -o coverage.html
+	@.ci/coverage-report.sh 0
+
+coverage-check:
+	@.ci/coverage-report.sh 80
 
 test-opts=
 test:

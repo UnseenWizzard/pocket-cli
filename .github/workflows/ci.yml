@@ -30,6 +30,15 @@ jobs:
         name: Test Results
         path: unit-test.xml
 
+    - name: Check Code Coverage
+      run: make coverage-check
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: Coverage Report
+        path: coverage.html
+
     - name: Static Code Analysis
       uses: reviewdog/action-golangci-lint@v2
       with:

@@ -2,6 +2,7 @@
 if [ "$#" -ne 3 ]; then
     echo "Missing required arguments"
     echo "run as: ./release.sh APPLICATION_ID VERSION OUTPUT_FILE"
+    exit 1
 fi
 
 CGO_ENABLED=0 go build -ldflags=\

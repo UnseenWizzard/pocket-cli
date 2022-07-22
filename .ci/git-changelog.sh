@@ -2,6 +2,7 @@
 if [ "$#" -ne 2 ]; then
     echo "Missing required arguments"
     echo "run as: ./git_log_release_notes.sh VERSION GIT_REPO_URL"
+    exit 1
 fi
 
 echo "# Release $1" > CHANGELOG.md
