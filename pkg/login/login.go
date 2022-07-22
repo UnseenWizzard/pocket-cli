@@ -124,20 +124,30 @@ func getAccessToken(appId string, reqCode string) string {
 
 func parseAccessTokenResponse(resp string) (accessToken string, forUser string, err error) {
 	split := strings.Split(resp, "&")
-	if len(split) != 2 {
+	if len(split) < 2 {
 		return "", "", fmt.Errorf("unexpected API response: %v", resp)
 	}
-	tokenSplit := strings.Split(split[0], "=")
-	if len(tokenSplit) != 2 && tokenSplit[0] != "access_token" {
-		return "", "", fmt.Errorf("unexpected API response: %v", resp)
-	}
-	accessToken = tokenSplit[1]
 
-	userSplit := strings.Split(split[1], "=")
-	if len(userSplit) != 2 && userSplit[0] != "username" {
-		return "", "", fmt.Errorf("unexpected API response: %v", resp)
+	for _, entry := range split {
+		kvSplit := strings.Split(entry, "=")
+		if len(kvSplit) != 2 {
+			return "", "", fmt.Errorf("unable parse API response entry: %v (%v)", entry, resp)
+		}
+		key := kvSplit[0]
+		val := kvSplit[1]
+		if key == "access_token" {
+			accessToken = val
+		}
+		if key == "username" {
+			forUser = val
+		}
 	}
-	forUser = userSplit[1]
+	if len(accessToken) == 0 {
+		return "", "", fmt.Errorf("api response did not contain access_token")
+	}
+	if len(forUser) == 0 {
+		return "", "", fmt.Errorf("api response did not contain username")
+	}
 
 	return accessToken, forUser, err
 }
