@@ -1,4 +1,4 @@
-.PHONY: build check fmt analysis test test-ci coverage-report
+.PHONY: default build check fmt analysis test test-ci coverage-report coverage-check golangci-lint
 
 default: check
 
@@ -27,3 +27,6 @@ test:
 
 test-ci: test-opts=--junitfile unit-test.xml	
 test-ci: test
+
+golangci-lint:
+	@golangci-lint run -E gosec -E bodyclose -E cyclop -E exhaustive -E godox
