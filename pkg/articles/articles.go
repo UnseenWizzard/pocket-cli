@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/UnseenWizzard/pocket-cli/pkg/api/login"
 	"github.com/UnseenWizzard/pocket-cli/pkg/api/retrieve"
+	"github.com/UnseenWizzard/pocket-cli/pkg/auth"
 	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 )
 
@@ -18,7 +18,7 @@ type Article struct {
 }
 
 func Fetch(count int, offset int) ([]Article, error) {
-	return fetch(util.PocketAppId, login.GetAccessToken(util.PocketAppId), count, offset, retrieve.RetrieveUnread)
+	return fetch(util.PocketAppId, auth.GetAccessToken(util.PocketAppId), count, offset, retrieve.RetrieveUnread)
 }
 
 func fetch(consumerKey string, accessToken string, count int, offset int, retrieveFn func(string, string, int, int) (retrieve.ResponsePayload, error)) ([]Article, error) {

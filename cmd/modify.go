@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/UnseenWizzard/pocket-cli/pkg/api/login"
 	"github.com/UnseenWizzard/pocket-cli/pkg/api/modify"
+	"github.com/UnseenWizzard/pocket-cli/pkg/auth"
 	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 	"github.com/manifoldco/promptui"
 )
@@ -51,7 +51,7 @@ func ModifyItemPrompt(id string) {
 	if selection.Title == "Exit" {
 		os.Exit(0)
 	}
-	err = selection.act(util.PocketAppId, login.GetAccessToken(util.PocketAppId), id)
+	err = selection.act(util.PocketAppId, auth.GetAccessToken(util.PocketAppId), id)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,7 +1,9 @@
-package login
+package credentials
 
 import (
 	"encoding/json"
+	"errors"
+	"io/fs"
 	"log"
 	"os"
 	"path"
@@ -11,19 +13,25 @@ import (
 const credentialsFile = ".credentials.json"
 const configFolder = ".pocket-cli"
 
-type credentials struct {
+type Credentials struct {
 	RequestToken string `json:"request_token"`
 	AccessToken  string `json:"access_token"`
 }
 
-func readStoredCredentials() (credentials, error) {
-	f, err := os.ReadFile(getFullCredentialFilePath())
-	if err != nil {
-		log.Println("Failed to read stored credentials: %w", err)
-		return credentials{}, err
+func ReadStoredCredentials() (Credentials, error) {
+	credFilepath := getFullCredentialFilePath()
+	if _, err := os.Stat(credFilepath); errors.Is(err, fs.ErrNotExist) {
+		log.Println("No stored credentials exist yet")
+		return Credentials{}, err
 	}
 
-	var c credentials
+	f, err := os.ReadFile(credFilepath)
+	if err != nil {
+		log.Printf("Failed to read stored credentials: %v\n", err)
+		return Credentials{}, err
+	}
+
+	var c Credentials
 
 	err = json.Unmarshal(f, &c)
 	if err != nil {
@@ -33,7 +41,7 @@ func readStoredCredentials() (credentials, error) {
 	return c, nil
 }
 
-func storeCredentials(c credentials) {
+func StoreCredentials(c Credentials) {
 	bytes, err := json.Marshal(c)
 	if err != nil {
 		log.Fatal("Failed to parse credentials to store")

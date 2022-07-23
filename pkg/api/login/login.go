@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -13,30 +12,14 @@ import (
 	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 )
 
-const redirectUri = "https://riedmann.dev"
 const requestTokenApi = "https://getpocket.com/v3/oauth/request" //nolint:gosec
 const authorizeApi = "https://getpocket.com/v3/oauth/authorize"
 
-func AuthorizeApp(appId string) {
-	creds, err := readStoredCredentials()
-	if err == nil && creds.RequestToken != "" {
-		log.Println("Already authorized")
-		return
-	}
-
-	reqToken, err := getRequestToken(requestTokenApi, appId, storeCredentials)
-	if err != nil {
-		log.Fatal(err)
-	}
-	authUrl := fmt.Sprintf("https://getpocket.com/auth/authorize?request_token=%s&redirect_uri=%s", reqToken, redirectUri)
-	log.Println("Please authorize app in browser - then run commands like `pocket-cli list`")
-	err = util.OpenInBrowser(authUrl)
-	if err != nil {
-		log.Fatal("Failed to open browser: %w", err)
-	}
+func CreateRequestToken(appId string, redirectUri string) (string, error) {
+	return createRequestToken(requestTokenApi, appId, redirectUri)
 }
 
-func getRequestToken(apiUrl string, appId string, storeCredentialsFn func(credentials)) (string, error) {
+func createRequestToken(apiUrl string, appId string, redirectUri string) (string, error) {
 	payload := url.Values{
 		"consumer_key": {appId},
 		"redirect_uri": {redirectUri},
@@ -62,25 +45,7 @@ func getRequestToken(apiUrl string, appId string, storeCredentialsFn func(creden
 	}
 	token := split[1]
 
-	storeCredentialsFn(credentials{RequestToken: token})
-
 	return token, nil
-}
-
-func GetAccessToken(appId string) string {
-	creds, err := readStoredCredentials()
-	if err == nil && len(creds.AccessToken) > 0 {
-		return creds.AccessToken
-	}
-	if len(creds.AccessToken) == 0 && len(creds.RequestToken) == 0 {
-		log.Fatalln("Application is not authorized - please run 'pocket-cli login'!")
-	}
-	log.Println("Did not find stored access token - requesting new one. (This should only happen once after login)")
-	token, err := getAccessToken(authorizeApi, appId, creds.RequestToken, storeCredentials)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return token
 }
 
 type accessTokenRequest struct {
@@ -88,7 +53,11 @@ type accessTokenRequest struct {
 	RequestCode string `json:"code"`
 }
 
-func getAccessToken(apiUrl string, appId string, reqCode string, storeCredentialsFn func(credentials)) (string, error) {
+func CreateAccessToken(appId string, reqCode string) (string, error) {
+	return createAccessToken(authorizeApi, appId, reqCode)
+}
+
+func createAccessToken(apiUrl string, appId string, reqCode string) (string, error) {
 	payload := accessTokenRequest{
 		ConsumerKey: appId,
 		RequestCode: reqCode,
@@ -124,11 +93,6 @@ func getAccessToken(apiUrl string, appId string, reqCode string, storeCredential
 	}
 
 	fmt.Printf("Acquired new access token for user %s\n", user)
-
-	storeCredentialsFn(credentials{
-		AccessToken:  token,
-		RequestToken: reqCode,
-	})
 
 	return token, nil
 }
