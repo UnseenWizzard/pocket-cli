@@ -32,8 +32,7 @@ func TestRetrieveUnread(t *testing.T) {
 			},
 			func(w http.ResponseWriter, r *http.Request) {
 				res := ResponsePayload{
-					Status:   1,
-					Complete: 1,
+					Status: 1,
 					List: map[string]Article{
 						"42": {
 							Id:         "42",
@@ -50,8 +49,7 @@ func TestRetrieveUnread(t *testing.T) {
 				_, _ = w.Write(b)
 			},
 			ResponsePayload{
-				Status:   1,
-				Complete: 1,
+				Status: 1,
 				List: map[string]Article{
 					"42": {
 						Id:         "42",

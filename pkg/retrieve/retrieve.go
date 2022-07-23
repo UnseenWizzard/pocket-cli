@@ -18,9 +18,8 @@ type requestPayload struct {
 }
 
 type ResponsePayload struct {
-	Status   int                `json:"status"`
-	Complete int                `json:"complete"`
-	List     map[string]Article `json:"list"`
+	Status int                `json:"status"`
+	List   map[string]Article `json:"list"`
 }
 
 type Article struct {

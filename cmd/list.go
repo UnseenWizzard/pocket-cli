@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 
-	"github.com/UnseenWizzard/pocket-cli/pkg/login"
-	"github.com/UnseenWizzard/pocket-cli/pkg/retrieve"
+	"github.com/UnseenWizzard/pocket-cli/pkg/articles"
 	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 	"github.com/manifoldco/promptui"
 )
@@ -13,18 +11,13 @@ import (
 const count = 10
 
 var offset = 0
-var entries []listEntry
-
-type listEntry struct {
-	Id       string
-	Title    string
-	Excerpt  string
-	ReadTime string
-	Url      string
-}
+var entries []articles.Article
 
 func ListArticles() {
-	fetched := fetchArticles(util.PocketAppId, login.GetAccessToken(util.PocketAppId), count, offset)
+	fetched, err := articles.Fetch(count, offset)
+	if err != nil {
+		log.Fatal("Failed to fetch articles: %w", err)
+	}
 	entries = append(entries, fetched...)
 
 	templates := &promptui.SelectTemplates{
@@ -37,7 +30,7 @@ func ListArticles() {
 
 	prompt := promptui.Select{
 		Label:     "\U0001F4DA Which article do you want to read?",
-		Items:     append(entries, listEntry{Title: "Load more ..."}),
+		Items:     append(entries, articles.Article{Title: "Load more ..."}),
 		Templates: templates,
 		Size:      11,
 	}
@@ -62,52 +55,4 @@ func ListArticles() {
 func fetchMore() {
 	offset += 10
 	ListArticles()
-}
-
-func fetchArticles(consumerKey string, accessToken string, count int, offset int) []listEntry {
-	articles, err := retrieve.RetrieveUnread(consumerKey, accessToken, count, offset)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var fetched = make([]listEntry, count)
-	i := 0
-	for _, a := range articles.List {
-
-		fetched[i] = listEntry{
-			Id:       a.Id,
-			Title:    beautifyTitle(a),
-			Excerpt:  beautifyExcerpt(a),
-			ReadTime: beautifyReadTime(a),
-			Url:      a.Url,
-		}
-		i++
-	}
-	return fetched
-}
-
-func beautifyTitle(a retrieve.Article) string {
-	title := a.Title
-	if title == "" {
-		title = a.GivenTitle
-	}
-	return title
-}
-
-func beautifyReadTime(a retrieve.Article) string {
-	time := "?"
-	if a.ReadTime > 0 {
-		time = fmt.Sprintf("%v min", a.ReadTime)
-	}
-	return time
-}
-
-func beautifyExcerpt(a retrieve.Article) string {
-	if len(a.Excerpt) == 0 {
-		return "[No excerpt available]"
-	}
-	if len(a.Excerpt) > 120 {
-		return a.Excerpt[:117] + "..."
-	}
-	return a.Excerpt
 }
