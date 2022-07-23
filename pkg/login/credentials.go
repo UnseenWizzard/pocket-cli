@@ -19,7 +19,7 @@ type credentials struct {
 func readStoredCredentials() (credentials, error) {
 	f, err := os.ReadFile(getFullCredentialFilePath())
 	if err != nil {
-		log.Println("No stored credentials found")
+		log.Println("Failed to read stored credentials: %w", err)
 		return credentials{}, err
 	}
 
@@ -44,7 +44,7 @@ func storeCredentials(c credentials) {
 		log.Fatal(err)
 	}
 
-	err = os.WriteFile(getFullCredentialFilePath(), bytes, 0644)
+	err = os.WriteFile(getFullCredentialFilePath(), bytes, 0600)
 	if err != nil {
 		log.Fatal("Failed to store credentials file")
 	}
