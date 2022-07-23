@@ -54,6 +54,7 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           args: -E gosec -E bodyclose -E cyclop -E exhaustive -E godox
+          skip-pkg-cache: true
 
   coverage:
     runs-on: ubuntu-latest
