@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/UnseenWizzard/pocket-cli/pkg/login"
-	"github.com/UnseenWizzard/pocket-cli/pkg/retrieve"
+	"github.com/UnseenWizzard/pocket-cli/pkg/api/login"
+	"github.com/UnseenWizzard/pocket-cli/pkg/api/retrieve"
 	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 )
 

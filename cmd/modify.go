@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/UnseenWizzard/pocket-cli/pkg/login"
-	"github.com/UnseenWizzard/pocket-cli/pkg/modify"
+	"github.com/UnseenWizzard/pocket-cli/pkg/api/login"
+	"github.com/UnseenWizzard/pocket-cli/pkg/api/modify"
 	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 	"github.com/manifoldco/promptui"
 )

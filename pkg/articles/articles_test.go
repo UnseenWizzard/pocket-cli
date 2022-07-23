@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/UnseenWizzard/pocket-cli/pkg/retrieve"
+	"github.com/UnseenWizzard/pocket-cli/pkg/api/retrieve"
 )
 
 var fullTestArticle retrieve.Article = retrieve.Article{

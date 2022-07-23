@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/UnseenWizzard/pocket-cli/pkg/login"
+	"github.com/UnseenWizzard/pocket-cli/pkg/api/login"
 	"github.com/UnseenWizzard/pocket-cli/pkg/util"
 )
 
