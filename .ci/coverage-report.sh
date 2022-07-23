@@ -12,6 +12,5 @@ COVERAGE=$(go tool cover -func coverage.out | grep total | sed -n "s/total:\s*(s
 echo "Total test coverage: $COVERAGE%"
 
 if [ $(echo "$COVERAGE < $TARGET" | bc -l) -gt 0 ]; then
-  echo "Test coverage is below target of $TARGET%"
-  exit 1
+  echo "::error:: Test coverage $COVERAGE% is below target of $TARGET%" && exit 1
 fi
