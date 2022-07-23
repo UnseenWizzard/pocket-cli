@@ -51,7 +51,7 @@ func retrieveUnread(url string, consumerKey string, accessToken string, count in
 
 	log.Printf("Fetching %v articles from API - offset:%v, sort:%v", payload.Count, payload.Offset, payload.Sort)
 
-	res, err := http.Post(url, "application/json", bytes.NewBuffer(b))
+	res, err := http.Post(url, "application/json", bytes.NewBuffer(b)) //nolint:gosec
 	if err != nil || (res.StatusCode < 200 || res.StatusCode >= 300) {
 		if err == nil {
 			err = fmt.Errorf("%s", res.Status)

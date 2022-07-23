@@ -46,7 +46,7 @@ func makeModifyApiCall(url string, consumerKey string, accessToken string, actio
 
 	log.Printf("Marking article (%v) as %s-ed...", articleId, action)
 
-	res, err := http.Post(url, "application/json", bytes.NewBuffer(b))
+	res, err := http.Post(url, "application/json", bytes.NewBuffer(b)) //nolint:gosec
 	if err != nil || (res.StatusCode < 200 || res.StatusCode >= 300) {
 		if err == nil {
 			err = fmt.Errorf("%s", res.Status)

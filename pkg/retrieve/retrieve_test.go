@@ -47,7 +47,7 @@ func TestRetrieveUnread(t *testing.T) {
 				}
 				w.WriteHeader(200)
 				b, _ := json.Marshal(res)
-				w.Write(b)
+				_, _ = w.Write(b)
 			},
 			ResponsePayload{
 				Status:   1,

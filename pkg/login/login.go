@@ -14,7 +14,7 @@ import (
 )
 
 const redirectUri = "https://riedmann.dev"
-const requestTokenApi = "https://getpocket.com/v3/oauth/request"
+const requestTokenApi = "https://getpocket.com/v3/oauth/request" //nolint:gosec
 const authorizeApi = "https://getpocket.com/v3/oauth/authorize"
 
 func AuthorizeApp(appId string) {
@@ -42,7 +42,7 @@ func getRequestToken(apiUrl string, appId string, storeCredentialsFn func(creden
 		"redirect_uri": {redirectUri},
 	}
 
-	res, err := http.Post(apiUrl, "application/x-www-form-urlencoded", strings.NewReader(payload.Encode()))
+	res, err := http.Post(apiUrl, "application/x-www-form-urlencoded", strings.NewReader(payload.Encode())) //nolint:gosec
 	if err != nil || !util.IsHttpSuccess(res.StatusCode) {
 		if err == nil {
 			err = fmt.Errorf("%s", res.Status)
@@ -99,7 +99,7 @@ func getAccessToken(apiUrl string, appId string, reqCode string, storeCredential
 		return "", fmt.Errorf("failed to marshal http request body: %w", err)
 	}
 
-	res, err := http.Post(apiUrl, "application/json", bytes.NewBuffer(b))
+	res, err := http.Post(apiUrl, "application/json", bytes.NewBuffer(b)) //nolint:gosec
 
 	if err == nil && res.StatusCode == 403 {
 		return "", fmt.Errorf("failed to request AccessCode - if this persist please re-authorize using login --reset")
