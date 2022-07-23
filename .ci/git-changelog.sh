@@ -8,7 +8,7 @@ fi
 NEW_VERSION=$1 
 
 # Get the last release tag (reverse sort by date, limited to one, return only refname, if pattern matches a hardening tag)
-LATEST_RELEASE=$(git for-each-ref --sort=-creatordate  --count=1 --format="%(refname)" refs/tags/release/*)
+LATEST_RELEASE=$(git for-each-ref --sort=-creatordate  --count=1 --format="%(refname)" --no-contains=HEAD refs/tags/release/*)
 
 #  Get extra short gitlog from laste release to current HEAD
 GIT_CHANGELOG=$(git log $LATEST_RELEASE..HEAD --format="- %s ([%h]($2/commits/%h))" | sort)
