@@ -31,11 +31,14 @@ jobs:
     - name: Build Linux x386
       run: GOOS=linux GOARCH=386 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-linux-386
 
-    - name: Build Mac
-      run: GOOS=darwin GOARCH=amd64 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-mac
+    - name: Build Mac Amd64
+      run: GOOS=darwin GOARCH=amd64 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-mac-amd64
+
+    - name: Build Mac Apple Silicon (arm)
+      run: GOOS=darwin GOARCH=arm64 .ci/release.sh ${{secrets.PocketAppId}} ${{env.version}} pocket-cli-mac-arm64
 
     - name: Get release text
-      run: echo "$(.ci/git-changelog.sh ${{env.version}} https://github.com/UnseenWizzard/pocket-cli)"
+      run: .ci/git-changelog.sh ${{env.version}} https://github.com/UnseenWizzard/pocket-cli
 
     - uses: ncipollo/release-action@v1
       with:
