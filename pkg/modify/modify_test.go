@@ -35,7 +35,7 @@ func TestModifyApiCall(t *testing.T) {
 				}
 				w.WriteHeader(200)
 				b, _ := json.Marshal(res)
-				_,_ = w.Write(b)
+				_, _ = w.Write(b)
 			},
 			false,
 		},
@@ -54,7 +54,7 @@ func TestModifyApiCall(t *testing.T) {
 				}
 				w.WriteHeader(200)
 				b, _ := json.Marshal(res)
-				_,_ = w.Write(b)
+				_, _ = w.Write(b)
 			},
 			true,
 		},
@@ -73,7 +73,7 @@ func TestModifyApiCall(t *testing.T) {
 				}
 				w.WriteHeader(200)
 				b, _ := json.Marshal(res)
-				_,_ = w.Write(b)
+				_, _ = w.Write(b)
 			},
 			true,
 		},
