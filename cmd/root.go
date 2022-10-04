@@ -24,6 +24,7 @@ func Execute() {
 }
 
 func init() {
+
 	rootCmd.AddCommand(&cobra.Command{
 		Use:   "list",
 		Short: "Lists your pocket articles",
@@ -42,4 +43,13 @@ func init() {
 	}
 	loginCmd.Flags().BoolVarP(&reset, "reset", "r", false, "Reset existing login/app authorization")
 	rootCmd.AddCommand(&loginCmd)
+
+	rootCmd.AddCommand(&cobra.Command{
+		Use:   "add {URL}",
+		Short: "Add an article to pocket",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			AddArticle(args[0])
+		},
+	})
 }
